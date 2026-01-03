@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf/shelf_io.dart' as shelf_io;
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'notification_service.dart';
 
 class ConsoleTarget {
@@ -142,6 +143,9 @@ class FBIService {
 
     _httpServer = await shelf_io.serve(handler, InternetAddress.anyIPv4, 0);
     onLog('HTTP Server started at $_localIpAddress:${_httpServer!.port}');
+
+    await WakelockPlus.enable();
+    onLog('Wake lock enabled - screen will stay on');
 
     await _notificationService.initialize();
 
@@ -370,6 +374,9 @@ class FBIService {
     _progressUpdateTimer = null;
     debugPrint('FBIService: Stopping notification service');
     await _notificationService.stopForegroundService();
+
+    await WakelockPlus.disable();
+    debugPrint('FBIService: Wake lock disabled');
     debugPrint(
       'FBIService: Closing HTTP server (server is ${_httpServer != null ? "not null" : "null"})',
     );
