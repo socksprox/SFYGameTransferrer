@@ -13,46 +13,33 @@ class CreditsPage extends StatelessWidget {
     }
   }
 
-  Widget _buildFeatureItem(
-    BuildContext context,
-    String title,
-    String description,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 2, right: 12),
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: Colors.blue.shade600,
-              borderRadius: BorderRadius.circular(3),
-            ),
+  Widget _buildIconFeature(BuildContext context, IconData icon, String label) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TDText(
-                  title,
-                  font: TDTheme.of(context).fontBodyMedium,
-                  fontWeight: FontWeight.w600,
-                  textColor: Colors.black,
-                ),
-                const SizedBox(height: 2),
-                TDText(
-                  description,
-                  font: TDTheme.of(context).fontBodySmall,
-                  textColor: Colors.grey.shade600,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+          child: Icon(icon, size: 32, color: Colors.blue.shade600),
+        ),
+        const SizedBox(height: 8),
+        TDText(
+          label,
+          font: TDTheme.of(context).fontBodySmall,
+          textColor: Colors.grey.shade700,
+          textAlign: TextAlign.center,
+          fontWeight: FontWeight.w600,
+        ),
+      ],
     );
   }
 
@@ -154,80 +141,92 @@ class CreditsPage extends StatelessWidget {
 
                     // Tagline
                     TDText(
-                      'Circumvent Censorship. Access the Open Internet.',
-                      font: TDTheme.of(context).fontBodyMedium,
-                      textColor: Colors.grey.shade600,
+                      'Break Through Censorship. Protect Your Privacy.',
+                      font: TDTheme.of(context).fontBodyLarge,
+                      textColor: Colors.grey.shade700,
                       textAlign: TextAlign.center,
+                      fontWeight: FontWeight.w500,
                     ),
                     const SizedBox(height: 40),
 
-                    // About section
+                    // Mission statement
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TDText(
-                            'About Shadowfly',
-                            font: TDTheme.of(context).fontTitleMedium,
-                            fontWeight: FontWeight.w600,
-                            textColor: Colors.black,
-                          ),
-                          const SizedBox(height: 12),
-                          TDText(
-                            'Shadowfly is a dedicated VPN service designed to help users bypass internet censorship in highly restricted regions. We provide reliable access to the open internet using advanced protocols.',
-                            font: TDTheme.of(context).fontBodyMedium,
-                            textColor: Colors.grey.shade700,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Features section
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.blue.shade50, Colors.purple.shade50],
+                        ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Colors.blue.shade200),
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TDText(
-                            'Key Features',
+                            'A VPN built to bypass the Great Firewall and protect your digital freedom—whether you\'re in China or anywhere else.',
+                            font: TDTheme.of(context).fontBodyLarge,
+                            textColor: Colors.grey.shade800,
+                            textAlign: TextAlign.center,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildIconFeature(
+                                context,
+                                Icons.shield_outlined,
+                                'REALITY\nProtocol',
+                              ),
+                              _buildIconFeature(
+                                context,
+                                Icons.public_off,
+                                'Anti-\nCensorship',
+                              ),
+                              _buildIconFeature(
+                                context,
+                                Icons.lock_outline,
+                                'Privacy\nFirst',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Why it matters
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.visibility_off,
+                            size: 36,
+                            color: Colors.green.shade700,
+                          ),
+                          const SizedBox(height: 12),
+                          TDText(
+                            'Why Privacy Tech Matters',
                             font: TDTheme.of(context).fontTitleMedium,
                             fontWeight: FontWeight.w600,
                             textColor: Colors.black,
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 12),
-                          _buildFeatureItem(
-                            context,
-                            'VLESS Protocol',
-                            'Next-generation proxy protocol',
-                          ),
-                          _buildFeatureItem(
-                            context,
-                            'Shadowsocks Support',
-                            'Lightweight and fast encryption',
-                          ),
-                          _buildFeatureItem(
-                            context,
-                            'China Optimized',
-                            'Specialized servers designed to bypass China\'s Great Firewall and censorship',
-                          ),
-                          _buildFeatureItem(
-                            context,
-                            'Military-grade Encryption',
-                            'Protect your privacy and data',
+                          const SizedBox(height: 8),
+                          TDText(
+                            'Our REALITY protocol hides your destination from ISPs and network monitors by masquerading as normal web traffic. What works against censorship also protects you from surveillance—everywhere.',
+                            font: TDTheme.of(context).fontBodyMedium,
+                            textColor: Colors.grey.shade700,
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -260,7 +259,7 @@ class CreditsPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           TDText(
-                            'The Shadowfly team created this app out of our passion for the Nintendo 3DS community. We believe everyone should have access to the tools and content they love, without restrictions.',
+                            'The Shadowfly team built this app for the 3DS community. We believe in open access to content, without restrictions.',
                             font: TDTheme.of(context).fontBodyMedium,
                             textColor: Colors.grey.shade700,
                             textAlign: TextAlign.center,
@@ -272,7 +271,7 @@ class CreditsPage extends StatelessWidget {
 
                     // CTA button
                     CenteredButton(
-                      text: 'Discover Shadowfly VPN',
+                      text: 'Try Shadowfly VPN',
                       isPrimary: true,
                       isLarge: true,
                       onTap: _launchURL,
@@ -280,7 +279,7 @@ class CreditsPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     TDText(
-                      'https://shadowfly.net',
+                      'shadowfly.net',
                       font: TDTheme.of(context).fontBodySmall,
                       textColor: Colors.grey.shade500,
                     ),

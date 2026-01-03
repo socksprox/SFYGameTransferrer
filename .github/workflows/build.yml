@@ -138,3 +138,36 @@ jobs:
         with:
           name: ios-unsigned-ipa
           path: build/ios/iphoneos/SFYGameTransferrer-unsigned.ipa
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+        continue-on-error: true
+
+      - name: Build Windows app
+        run: flutter build windows --release
+
+      - name: Archive Windows app
+        run: |
+          cd build/windows/x64/runner/Release
+          Compress-Archive -Path * -DestinationPath SFYGameTransferrer-windows.zip
+
+      - name: Upload Windows app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: build/windows/x64/runner/Release/SFYGameTransferrer-windows.zip
