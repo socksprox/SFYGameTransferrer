@@ -83,18 +83,18 @@ jobs:
             --icon-size 100 \
             --app-drop-link 600 185 \
             "build/macos/SFY-Game-Transferrer.dmg" \
-            "build/macos/Build/Products/Release/sfy_game_transferrer.app" || true
+            "build/macos/Build/Products/Release/SFYGameTransferrer.app" || true
 
       - name: Archive macOS app
         run: |
           cd build/macos/Build/Products/Release
-          zip -r sfy_game_transferrer-macos.zip sfy_game_transferrer.app
+          zip -r SFYGameTransferrer-macos.zip SFYGameTransferrer.app
 
       - name: Upload macOS app artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-app
-          path: build/macos/Build/Products/Release/sfy_game_transferrer-macos.zip
+          path: build/macos/Build/Products/Release/SFYGameTransferrer-macos.zip
 
       - name: Upload DMG artifact (if created)
         uses: actions/upload-artifact@v4
