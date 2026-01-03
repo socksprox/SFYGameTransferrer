@@ -1,0 +1,103 @@
+name: Build Flutter App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Build App Bundle
+        run: flutter build appbundle --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload App Bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-appbundle
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Build macOS app
+        run: flutter build macos --release
+
+      - name: Create DMG (optional)
+        run: |
+          brew install create-dmg
+          create-dmg \
+            --volname "SFY Game Transferrer" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --app-drop-link 600 185 \
+            "build/macos/SFY-Game-Transferrer.dmg" \
+            "build/macos/Build/Products/Release/sfy_game_transferrer.app" || true
+
+      - name: Archive macOS app
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r sfy_game_transferrer-macos.zip sfy_game_transferrer.app
+
+      - name: Upload macOS app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: build/macos/Build/Products/Release/sfy_game_transferrer-macos.zip
+
+      - name: Upload DMG artifact (if created)
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: macos-dmg
+          path: build/macos/SFY-Game-Transferrer.dmg
+        continue-on-error: true
