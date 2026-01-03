@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'services/fbi_service.dart';
 import 'services/console_manager.dart';
 import 'services/notification_service.dart';
@@ -199,6 +200,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
       });
       try {
         await _fbiService.stopServer();
+        await WakelockPlus.disable();
         if (mounted) {
           TDToast.showSuccess('Server stopped', context: context);
           setState(() {});
@@ -234,6 +236,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
             .map((c) => ConsoleTarget(ipAddress: c.ipAddress, port: c.port))
             .toList();
         await _fbiService.sendToConsoles(consoleTargets);
+        await WakelockPlus.enable();
         if (mounted) {
           TDToast.showSuccess(
             'Server started and files sent!',
