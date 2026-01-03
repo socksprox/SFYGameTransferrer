@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:shelf/shelf.dart' as shelf;
@@ -10,15 +11,40 @@ class ConsoleTarget {
   ConsoleTarget({required this.ipAddress, required this.port});
 }
 
+class DownloadProgress {
+  final String clientIp;
+  final String fileName;
+  final int totalBytes;
+  int downloadedBytes;
+  DateTime startTime;
+  bool isComplete;
+
+  DownloadProgress({
+    required this.clientIp,
+    required this.fileName,
+    required this.totalBytes,
+    this.downloadedBytes = 0,
+    required this.startTime,
+    this.isComplete = false,
+  });
+
+  double get progress => totalBytes > 0 ? downloadedBytes / totalBytes : 0.0;
+}
+
 class FBIService {
   HttpServer? _httpServer;
   String? _localIpAddress;
   final List<FileItem> _files = [];
   final Function(String) onLog;
+  final Map<String, List<DownloadProgress>> _downloadProgress = {};
 
   FBIService({required this.onLog});
 
   List<FileItem> get files => _files;
+
+  List<DownloadProgress> getDownloadProgress(String fileName) {
+    return _downloadProgress[fileName] ?? [];
+  }
 
   void addFiles(List<String> filePaths) {
     for (final path in filePaths) {
@@ -137,14 +163,58 @@ class FBIService {
       return shelf.Response.notFound('File does not exist');
     }
 
-    onLog('Sending: ${fileItem.fileName}');
-    final bytes = await file.readAsBytes();
+    String clientIp = 'Unknown';
+    try {
+      final connectionInfo = request.context['shelf.io.connection_info'];
+      if (connectionInfo != null && connectionInfo is HttpConnectionInfo) {
+        clientIp = connectionInfo.remoteAddress.address;
+      }
+    } catch (e) {
+      clientIp = 'Unknown';
+    }
+
+    final fileSize = await file.length();
+    onLog('Sending: ${fileItem.fileName} to $clientIp');
+
+    if (!_downloadProgress.containsKey(fileItem.fileName)) {
+      _downloadProgress[fileItem.fileName] = [];
+    }
+
+    final progress = DownloadProgress(
+      clientIp: clientIp,
+      fileName: fileItem.fileName,
+      totalBytes: fileSize,
+      downloadedBytes: 0,
+      startTime: DateTime.now(),
+      isComplete: false,
+    );
+    _downloadProgress[fileItem.fileName]!.add(progress);
+
+    final stream = file.openRead().transform(
+      StreamTransformer<List<int>, List<int>>.fromHandlers(
+        handleData: (data, sink) {
+          progress.downloadedBytes += data.length;
+          sink.add(data);
+        },
+        handleDone: (sink) {
+          progress.isComplete = true;
+          onLog('Completed sending ${fileItem.fileName} to $clientIp');
+          sink.close();
+        },
+        handleError: (error, stackTrace, sink) {
+          progress.isComplete = true;
+          onLog('Error sending ${fileItem.fileName} to $clientIp: $error');
+          sink.addError(error, stackTrace);
+        },
+      ),
+    );
+
     return shelf.Response.ok(
-      bytes,
+      stream,
       headers: {
         'Content-Type': 'application/octet-stream',
         'Content-Disposition': 'attachment; filename="${fileItem.fileName}"',
-        'Content-Length': '${bytes.length}',
+        'Content-Length': '$fileSize',
       },
     );
   }

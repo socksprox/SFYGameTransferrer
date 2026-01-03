@@ -5,6 +5,7 @@ import 'services/fbi_service.dart';
 import 'services/console_manager.dart';
 import 'widgets/squircle_input.dart';
 import 'widgets/centered_button.dart';
+import 'widgets/download_progress_dialog.dart';
 import 'credits.dart';
 
 void main() {
@@ -658,6 +659,30 @@ class _FBITransferPageState extends State<FBITransferPage> {
                                         textColor: Colors.grey.shade600,
                                       ),
                                     ],
+                                  ),
+                                ),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) =>
+                                            DownloadProgressDialog(
+                                              fbiService: _fbiService,
+                                              fileName: file.fileName,
+                                            ),
+                                      );
+                                    },
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Icon(
+                                        Icons.info_outline,
+                                        color: Colors.blue.shade400,
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 Material(
