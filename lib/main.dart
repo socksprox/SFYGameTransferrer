@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'services/fbi_service.dart';
 import 'services/console_manager.dart';
 import 'widgets/squircle_input.dart';
+import 'widgets/centered_button.dart';
 import 'credits.dart';
 
 void main() {
@@ -325,19 +326,19 @@ class _FBITransferPageState extends State<FBITransferPage> {
           Row(
             children: [
               Expanded(
-                child: TDButton(
+                child: CenteredButton(
                   text: _isDetecting ? 'Detecting...' : 'Auto-Detect',
-                  theme: TDButtonTheme.primary,
+                  isPrimary: true,
                   onTap: _isDetecting ? null : _detectConsoles,
-                  icon: TDIcons.search,
+                  icon: Icons.search,
                   disabled: _isDetecting,
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: TDButton(
+                child: CenteredButton(
                   text: 'Clear All',
-                  theme: TDButtonTheme.defaultTheme,
+                  isPrimary: false,
                   onTap: () {
                     setState(() {
                       _consoleManager.clearConsoles();
@@ -367,11 +368,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              TDButton(
+              CenteredButton(
                 text: 'Add',
-                theme: TDButtonTheme.primary,
+                isPrimary: true,
                 onTap: _addConsole,
-                icon: TDIcons.add,
+                icon: Icons.add,
               ),
             ],
           ),
@@ -512,18 +513,18 @@ class _FBITransferPageState extends State<FBITransferPage> {
           Row(
             children: [
               Expanded(
-                child: TDButton(
+                child: CenteredButton(
                   text: 'Add Files',
-                  theme: TDButtonTheme.primary,
+                  isPrimary: true,
                   onTap: _pickFiles,
-                  icon: TDIcons.add,
+                  icon: Icons.add,
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: TDButton(
+                child: CenteredButton(
                   text: 'Clear All',
-                  theme: TDButtonTheme.defaultTheme,
+                  isPrimary: false,
                   onTap: () {
                     setState(() {
                       _fbiService.clearFiles();
@@ -546,11 +547,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              TDButton(
+              CenteredButton(
                 text: 'Add URL',
-                theme: TDButtonTheme.primary,
+                isPrimary: true,
                 onTap: _addUrl,
-                icon: TDIcons.link,
+                icon: Icons.link,
               ),
             ],
           ),
@@ -688,14 +689,14 @@ class _FBITransferPageState extends State<FBITransferPage> {
             ),
           ),
           const SizedBox(height: 16),
-          TDButton(
+          CenteredButton(
             text: _isTransferring ? 'Transferring...' : 'Send to 3DS',
-            theme: TDButtonTheme.primary,
-            size: TDButtonSize.large,
+            isPrimary: true,
+            isLarge: true,
             onTap: _isTransferring ? null : _sendFiles,
             isBlock: true,
             disabled: _isTransferring,
-            icon: TDIcons.upload,
+            icon: Icons.upload,
           ),
           const SizedBox(height: 16),
           TDText(

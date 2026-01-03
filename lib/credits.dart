@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'widgets/centered_button.dart';
 
 class CreditsPage extends StatelessWidget {
   const CreditsPage({super.key});
@@ -87,12 +88,12 @@ class CreditsPage extends StatelessWidget {
                       textColor: Colors.black,
                     ),
                     const SizedBox(height: 32),
-                    TDButton(
+                    CenteredButton(
                       text: 'Try out Shadowfly here',
-                      theme: TDButtonTheme.primary,
-                      size: TDButtonSize.large,
+                      isPrimary: true,
+                      isLarge: true,
                       onTap: _launchURL,
-                      icon: TDIcons.link,
+                      icon: Icons.link,
                     ),
                     const SizedBox(height: 8),
                     TDText(
