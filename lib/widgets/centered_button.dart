@@ -8,6 +8,7 @@ class CenteredButton extends StatelessWidget {
   final bool isLarge;
   final bool isBlock;
   final bool disabled;
+  final Color? backgroundColor;
 
   const CenteredButton({
     super.key,
@@ -18,25 +19,30 @@ class CenteredButton extends StatelessWidget {
     this.isLarge = false,
     this.isBlock = false,
     this.disabled = false,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = disabled
-        ? Colors.grey.shade300
-        : (isPrimary ? const Color(0xFF0052D9) : Colors.white);
+    final bgColor =
+        this.backgroundColor ??
+        (disabled
+            ? Colors.grey.shade300
+            : (isPrimary ? const Color(0xFF0052D9) : Colors.white));
     final textColor = disabled
         ? Colors.grey.shade600
-        : (isPrimary ? Colors.white : Colors.black87);
-    final borderColor = isPrimary
-        ? const Color(0xFF0052D9)
-        : Colors.grey.shade300;
+        : (this.backgroundColor != null
+              ? Colors.white
+              : (isPrimary ? Colors.white : Colors.black87));
+    final borderColor =
+        this.backgroundColor ??
+        (isPrimary ? const Color(0xFF0052D9) : Colors.grey.shade300);
 
     return SizedBox(
       width: isBlock ? double.infinity : null,
       height: isLarge ? 48 : 40,
       child: Material(
-        color: backgroundColor,
+        color: bgColor,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           onTap: disabled ? null : onTap,

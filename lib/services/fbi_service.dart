@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:shelf/shelf.dart' as shelf;
 import 'package:shelf/shelf_io.dart' as shelf_io;
+import 'notification_service.dart';
 
 class ConsoleTarget {
   final String ipAddress;
@@ -37,10 +38,15 @@ class FBIService {
   final List<FileItem> _files = [];
   final Function(String) onLog;
   final Map<String, List<DownloadProgress>> _downloadProgress = {};
+  final NotificationService _notificationService = NotificationService();
+  Timer? _progressUpdateTimer;
+  Future<bool> Function()? onRequestPermissionExplanation;
 
   FBIService({required this.onLog});
 
   List<FileItem> get files => _files;
+  HttpServer? get httpServer => _httpServer;
+  String? get localIpAddress => _localIpAddress;
 
   List<DownloadProgress> getDownloadProgress(String fileName) {
     return _downloadProgress[fileName] ?? [];
@@ -136,6 +142,23 @@ class FBIService {
 
     _httpServer = await shelf_io.serve(handler, InternetAddress.anyIPv4, 0);
     onLog('HTTP Server started at $_localIpAddress:${_httpServer!.port}');
+
+    await _notificationService.initialize();
+
+    if (Platform.isAndroid) {
+      final permissionGranted = await _notificationService
+          .requestPermissionsWithExplanation(
+            showExplanationDialog: onRequestPermissionExplanation,
+          );
+
+      if (permissionGranted) {
+        await _notificationService.startForegroundService();
+        _startProgressUpdateTimer();
+      }
+    } else {
+      await _notificationService.startForegroundService();
+      _startProgressUpdateTimer();
+    }
   }
 
   Future<shelf.Response> _handleRequest(shelf.Request request) async {
@@ -311,13 +334,71 @@ class FBIService {
     }
   }
 
+  void _startProgressUpdateTimer() {
+    _progressUpdateTimer?.cancel();
+    _progressUpdateTimer = Timer.periodic(
+      const Duration(milliseconds: 500),
+      (_) => _updateNotificationProgress(),
+    );
+  }
+
+  void _updateNotificationProgress() {
+    int activeDownloads = 0;
+    String currentFileName = '';
+    int currentProgress = 0;
+
+    for (final progressList in _downloadProgress.values) {
+      for (final progress in progressList) {
+        if (!progress.isComplete) {
+          activeDownloads++;
+          currentFileName = progress.fileName;
+          currentProgress = (progress.progress * 100).toInt();
+        }
+      }
+    }
+
+    _notificationService.updateDownloadProgress(
+      fileName: currentFileName.isEmpty ? 'Waiting...' : currentFileName,
+      progress: currentProgress,
+      activeDownloads: activeDownloads,
+    );
+  }
+
   Future<void> stopServer() async {
-    await _httpServer?.close();
+    debugPrint('FBIService: stopServer called');
+    _progressUpdateTimer?.cancel();
+    _progressUpdateTimer = null;
+    debugPrint('FBIService: Stopping notification service');
+    await _notificationService.stopForegroundService();
+    debugPrint(
+      'FBIService: Closing HTTP server (server is ${_httpServer != null ? "not null" : "null"})',
+    );
+
+    // Force close the server and all active connections
+    await _httpServer?.close(force: true);
     _httpServer = null;
+
+    // Clear download progress to stop tracking
+    _downloadProgress.clear();
+
+    debugPrint('FBIService: Server stopped, calling onLog');
     onLog('HTTP Server stopped');
+    debugPrint('FBIService: stopServer completed');
+  }
+
+  bool get hasActiveDownloads {
+    for (final progressList in _downloadProgress.values) {
+      for (final progress in progressList) {
+        if (!progress.isComplete) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   void dispose() {
+    _progressUpdateTimer?.cancel();
     stopServer();
   }
 }

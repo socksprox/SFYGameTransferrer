@@ -3,11 +3,14 @@ import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'services/fbi_service.dart';
 import 'services/console_manager.dart';
+import 'services/notification_service.dart';
 import 'widgets/squircle_input.dart';
 import 'widgets/centered_button.dart';
 import 'widgets/download_progress_dialog.dart';
 import 'widgets/custom_app_bar.dart';
+import 'widgets/info_dialog.dart';
 import 'credits.dart';
+import 'debug_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -75,6 +78,29 @@ class _FBITransferPageState extends State<FBITransferPage> {
       },
     );
 
+    NotificationService().onStopServerRequested = () async {
+      print('Main: Stop server callback triggered');
+      await _fbiService.stopServer();
+      print('Main: Stop server completed');
+    };
+
+    _fbiService.onRequestPermissionExplanation = () async {
+      if (!mounted) return false;
+
+      final result = await InfoDialog.show(
+        context: context,
+        title: 'Notification Permission',
+        message:
+            'This app needs notification permission to keep downloads running in the background on Android. This allows the server to continue transferring files even when you leave the app.',
+        icon: Icons.notifications_outlined,
+        iconColor: Colors.blue,
+        confirmText: 'Continue',
+        cancelText: 'Cancel',
+      );
+
+      return result ?? false;
+    };
+
     // Auto-discover 3DS consoles on app boot
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _detectConsoles();
@@ -83,6 +109,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
 
   @override
   void dispose() {
+    NotificationService().onStopServerRequested = null;
     _fbiService.dispose();
     _ipController.dispose();
     _portController.dispose();
@@ -165,38 +192,65 @@ class _FBITransferPageState extends State<FBITransferPage> {
     });
   }
 
-  Future<void> _sendFiles() async {
-    if (_consoleManager.consoles.isEmpty) {
-      TDToast.showText('Please add at least one console', context: context);
-      return;
-    }
-
-    if (_fbiService.files.isEmpty) {
-      TDToast.showText('Please add files first', context: context);
-      return;
-    }
-
-    setState(() {
-      _isTransferring = true;
-    });
-
-    try {
-      final consoleTargets = _consoleManager.consoles
-          .map((c) => ConsoleTarget(ipAddress: c.ipAddress, port: c.port))
-          .toList();
-      await _fbiService.sendToConsoles(consoleTargets);
-      if (mounted) {
-        TDToast.showSuccess('Files sent!', context: context);
+  Future<void> _toggleServer() async {
+    if (_fbiService.httpServer != null) {
+      setState(() {
+        _isTransferring = true;
+      });
+      try {
+        await _fbiService.stopServer();
+        if (mounted) {
+          TDToast.showSuccess('Server stopped', context: context);
+          setState(() {});
+        }
+      } catch (e) {
+        if (mounted) {
+          TDToast.showFail('Error stopping server: $e', context: context);
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isTransferring = false;
+          });
+        }
       }
-    } catch (e) {
-      if (mounted) {
-        TDToast.showFail('Error: $e', context: context);
+    } else {
+      if (_fbiService.files.isEmpty) {
+        TDToast.showText('Please add files first', context: context);
+        return;
       }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isTransferring = false;
-        });
+
+      if (_consoleManager.consoles.isEmpty) {
+        TDToast.showText('Please add at least one console', context: context);
+        return;
+      }
+
+      setState(() {
+        _isTransferring = true;
+      });
+
+      try {
+        final consoleTargets = _consoleManager.consoles
+            .map((c) => ConsoleTarget(ipAddress: c.ipAddress, port: c.port))
+            .toList();
+        await _fbiService.sendToConsoles(consoleTargets);
+        if (mounted) {
+          TDToast.showSuccess(
+            'Server started and files sent!',
+            context: context,
+          );
+          setState(() {});
+        }
+      } catch (e) {
+        if (mounted) {
+          TDToast.showFail('Error: $e', context: context);
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isTransferring = false;
+          });
+        }
       }
     }
   }
@@ -207,10 +261,22 @@ class _FBITransferPageState extends State<FBITransferPage> {
       appBar: CustomAppBar(
         title: 'SFY Game Transferrer',
         automaticallyImplyLeading: false,
-        leading: const Icon(
-          Icons.videogame_asset,
-          color: Colors.black,
-          size: 24,
+        leading: GestureDetector(
+          onLongPress: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => DebugScreen(
+                  fbiService: _fbiService,
+                  consoleManager: _consoleManager,
+                ),
+              ),
+            );
+          },
+          child: const Icon(
+            Icons.videogame_asset,
+            color: Colors.black,
+            size: 24,
+          ),
         ),
         actions: [
           Material(
@@ -680,13 +746,22 @@ class _FBITransferPageState extends State<FBITransferPage> {
           ),
           const SizedBox(height: 16),
           CenteredButton(
-            text: _isTransferring ? 'Transferring...' : 'Send to 3DS',
-            isPrimary: true,
+            text: _isTransferring
+                ? (_fbiService.httpServer != null
+                      ? 'Stopping...'
+                      : 'Starting...')
+                : (_fbiService.httpServer != null
+                      ? 'Stop Server'
+                      : 'Start Server'),
+            isPrimary: _fbiService.httpServer == null,
             isLarge: true,
-            onTap: _isTransferring ? null : _sendFiles,
+            onTap: _isTransferring ? null : _toggleServer,
             isBlock: true,
             disabled: _isTransferring,
-            icon: Icons.upload,
+            icon: _fbiService.httpServer != null
+                ? Icons.stop
+                : Icons.play_arrow,
+            backgroundColor: _fbiService.httpServer != null ? Colors.red : null,
           ),
           const SizedBox(height: 16),
           TDText(

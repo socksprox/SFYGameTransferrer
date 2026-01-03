@@ -50,7 +50,7 @@ class SquircleInput extends StatelessWidget {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 12,
+            vertical: 10,
           ),
           isDense: true,
         ),
