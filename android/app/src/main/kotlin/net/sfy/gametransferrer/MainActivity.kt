@@ -1,4 +1,4 @@
-package com.n3ds.fbi_file_transfer
+package net.sfy.gametransferrer
 
 import io.flutter.embedding.android.FlutterActivity
 
