@@ -744,13 +744,12 @@ class _FBITransferPageState extends State<FBITransferPage> {
                       child: TDText('No logs yet', textColor: Colors.grey),
                     )
                   : ListView.builder(
-                      reverse: true,
                       itemCount: _logs.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           child: Text(
-                            _logs[_logs.length - 1 - index],
+                            _logs[index],
                             style: const TextStyle(fontSize: 12),
                           ),
                         );
