@@ -14,8 +14,8 @@ A Flutter app for transferring CIA and TIK files to Nintendo 3DS consoles using 
 
 <table>
   <tr>
-    <td><img src="docs/photos/consoles_tab.PNG" alt="Consoles Tab" width="300"/></td>
-    <td><img src="docs/photos/files_tab.PNG" alt="Files Tab" width="300"/></td>
+    <td><img src="docs/photos/consoles_tab.jpg" alt="Consoles Tab" width="300"/></td>
+    <td><img src="docs/photos/files_tab.jpg" alt="Files Tab" width="300"/></td>
   </tr>
   <tr>
     <td align="center">Consoles Tab</td>

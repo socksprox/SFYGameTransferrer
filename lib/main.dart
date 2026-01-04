@@ -235,10 +235,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
             .toList();
         await _fbiService.sendToConsoles(consoleTargets);
         if (mounted) {
-          TDToast.showSuccess(
-            'Server started and files sent!',
-            context: context,
-          );
+          TDToast.showText('Server started and files sent!', context: context);
           setState(() {});
         }
       } catch (e) {
