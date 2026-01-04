@@ -50,11 +50,34 @@ The app implements the FBI network protocol:
 
 ## Building
 
+### Prerequisites
+
+- **Flutter SDK** must be installed on your system
+  - Follow the official [Flutter installation guide](https://docs.flutter.dev/get-started/install)
+  - Ensure `flutter doctor` reports no issues
+
+### Local Development
+
 ```bash
 flutter pub get
 flutter run
 ```
 
+### GitHub Actions (Recommended for Forks)
+
+You can build this app for all platforms using GitHub Actions without local setup:
+
+1. **Fork this repository**
+2. **Enable GitHub Actions** in your fork's settings
+3. **Make one change**: In your fork's repository settings under **Actions → General**, enable **Allow GitHub Actions to create and approve pull requests**
+4. **Trigger a build**: Push any change or create a pull request to automatically build for:
+   - **Windows** (Windows executable)
+   - **macOS** (macOS app)
+   - **iOS** (iOS app)
+   - **Android** (APK file)
+
+The GitHub Actions workflow will automatically build and package the app for all platforms. Download the artifacts from the Actions tab in your repository.
+
 ## Credits
 
-Based on the protocol implementation from [3DS FBI Link](https://github.com/varunmehta/3DS-FBI-Link) by Varun Mehta.
+Based on the protocol implementation from [3DS FBI Link](https://github.com/smartperson/3DS-FBI-Link) by Varun Mehta.
