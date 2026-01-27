@@ -177,3 +177,66 @@ jobs:
         with:
           name: windows-app
           path: build/windows/x64/runner/Release/SFYGameTransferrer-windows.zip
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-android, build-macos, build-ios, build-windows]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get commit message
+        id: commit-message
+        run: |
+          MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "$MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep -o 'version: [0-9]\+\.[0-9]\+\.[0-9]\+' pubspec.yaml | cut -d' ' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ${{ steps.commit-message.outputs.message }}
+            
+            ## 📦 Download Assets
+            
+            ### Android
+            - **APK**: Direct installation file
+            - **AAB**: Google Play Store submission
+            
+            ### iOS  
+            - **Unsigned IPA**: For sideloading/testing (requires signing for App Store)
+            
+            ### macOS
+            - **ZIP**: Application bundle
+            - **DMG**: Installer disk image (if available)
+            
+            ### Windows
+            - **ZIP**: Portable application
+            
+            ---
+            *Built from commit: ${{ github.sha }}*
+          files: |
+            artifacts/android-apk/app-release.apk
+            artifacts/android-appbundle/app-release.aab
+            artifacts/ios-unsigned-ipa/SFYGameTransferrer-unsigned.ipa
+            artifacts/macos-app/SFYGameTransferrer-macos.zip
+            artifacts/macos-dmg/SFY-Game-Transferrer.dmg
+            artifacts/windows-app/SFYGameTransferrer-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
