@@ -108,7 +108,7 @@ class ThemeManager extends ChangeNotifier {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final file = File('${directory.path}/theme_color.txt');
-      await file.writeAsString(color.value.toString());
+      await file.writeAsString(color.toARGB32().toString());
     } catch (e) {
       debugPrint('Error saving theme color: $e');
     }

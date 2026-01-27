@@ -145,7 +145,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (color) => _buildColorOption(
                     context,
                     color: color,
-                    isSelected: themeManager.themeColor.value == color.value,
+                    isSelected:
+                        themeManager.themeColor.toARGB32() == color.toARGB32(),
                     onTap: () {
                       themeManager.setThemeColor(color);
                       setState(() {});
@@ -202,7 +203,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildCustomColorOption(BuildContext context, {required bool isDark}) {
     final themeManager = theme_manager.ThemeManager();
     final isCustomColor = !_defaultColors.any(
-      (c) => c.value == themeManager.themeColor.value,
+      (c) => c.toARGB32() == themeManager.themeColor.toARGB32(),
     );
 
     return GestureDetector(
