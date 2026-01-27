@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tdesign_flutter/tdesign_flutter.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../services/theme_manager.dart' as theme_manager;
+import 'theme_tab_selector.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,14 +14,25 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final List<Color> _defaultColors = [
     const Color(0xFF0052D9),
+    const Color(0xFF5BD700),
     Colors.red,
-    Colors.green,
     Colors.purple,
     Colors.orange,
     Colors.teal,
     Colors.pink,
     Colors.indigo,
   ];
+
+  int _getThemeModeIndex(theme_manager.ThemeMode mode) {
+    switch (mode) {
+      case theme_manager.ThemeMode.light:
+        return 0;
+      case theme_manager.ThemeMode.dark:
+        return 1;
+      case theme_manager.ThemeMode.system:
+        return 2;
+    }
+  }
 
   void _showColorPicker() {
     final themeManager = theme_manager.ThemeManager();
@@ -86,43 +98,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
               textColor: isDark ? Colors.white : Colors.black,
             ),
             const SizedBox(height: 16),
-            _buildThemeOption(
-              context,
-              title: 'Light Mode',
-              icon: Icons.light_mode,
-              isSelected:
-                  themeManager.themeMode == theme_manager.ThemeMode.light,
-              onTap: () {
-                themeManager.setThemeMode(theme_manager.ThemeMode.light);
+            ThemeTabSelector(
+              tabs: const [
+                ThemeTabItem(
+                  text: 'Light',
+                  icon: Icon(Icons.light_mode, size: 16),
+                ),
+                ThemeTabItem(
+                  text: 'Dark',
+                  icon: Icon(Icons.dark_mode, size: 16),
+                ),
+                ThemeTabItem(
+                  text: 'System',
+                  icon: Icon(Icons.brightness_auto, size: 16),
+                ),
+              ],
+              initialIndex: _getThemeModeIndex(themeManager.themeMode),
+              onTabChanged: (index) {
+                switch (index) {
+                  case 0:
+                    themeManager.setThemeMode(theme_manager.ThemeMode.light);
+                    break;
+                  case 1:
+                    themeManager.setThemeMode(theme_manager.ThemeMode.dark);
+                    break;
+                  case 2:
+                    themeManager.setThemeMode(theme_manager.ThemeMode.system);
+                    break;
+                }
                 setState(() {});
               },
-              isDark: isDark,
-            ),
-            const SizedBox(height: 12),
-            _buildThemeOption(
-              context,
-              title: 'Dark Mode',
-              icon: Icons.dark_mode,
-              isSelected:
-                  themeManager.themeMode == theme_manager.ThemeMode.dark,
-              onTap: () {
-                themeManager.setThemeMode(theme_manager.ThemeMode.dark);
-                setState(() {});
-              },
-              isDark: isDark,
-            ),
-            const SizedBox(height: 12),
-            _buildThemeOption(
-              context,
-              title: 'System',
-              icon: Icons.brightness_auto,
-              isSelected:
-                  themeManager.themeMode == theme_manager.ThemeMode.system,
-              onTap: () {
-                themeManager.setThemeMode(theme_manager.ThemeMode.system);
-                setState(() {});
-              },
-              isDark: isDark,
             ),
             const SizedBox(height: 32),
             TDText(
@@ -245,66 +250,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Color _getContrastColor(Color color) {
     final luminance = color.computeLuminance();
     return luminance > 0.5 ? Colors.black : Colors.white;
-  }
-
-  Widget _buildThemeOption(
-    BuildContext context, {
-    required String title,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-    required bool isDark,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? Colors.blue
-                  : (isDark ? Colors.grey.shade700 : Colors.grey.shade200),
-              width: isSelected ? 2 : 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.blue.shade50
-                      : (isDark ? Colors.grey.shade700 : Colors.grey.shade100),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected
-                      ? Colors.blue.shade600
-                      : (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TDText(
-                  title,
-                  font: TDTheme.of(context).fontBodyLarge,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  textColor: isDark ? Colors.white : Colors.black,
-                ),
-              ),
-              if (isSelected)
-                Icon(Icons.check_circle, color: Colors.blue.shade600, size: 24),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

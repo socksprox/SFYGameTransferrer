@@ -18,18 +18,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDark ? Colors.grey.shade900 : Colors.white;
+    final borderColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final shadowColor = Colors.black.withValues(alpha: isDark ? 0.3 : 0.05);
+    final iconColor = isDark ? Colors.white : Colors.black;
+    final textColor = isDark ? Colors.white : Colors.black;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey.shade900 : Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
-          ),
-        ),
+        color: backgroundColor,
+        border: Border(bottom: BorderSide(color: borderColor)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            color: shadowColor,
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
@@ -50,11 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.all(8),
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: isDark ? Colors.white : Colors.black,
-                        size: 24,
-                      ),
+                      child: Icon(Icons.arrow_back, color: iconColor, size: 24),
                     ),
                   ),
                 ),
@@ -63,7 +61,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               TDText(
                 title,
                 font: TDTheme.of(context).fontTitleLarge,
-                textColor: isDark ? Colors.white : Colors.black,
+                textColor: textColor,
                 fontWeight: FontWeight.w600,
               ),
               const Spacer(),

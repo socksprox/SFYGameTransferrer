@@ -68,6 +68,8 @@ class _MyAppState extends State<MyApp> {
       themeMode: brightness == Brightness.dark
           ? ThemeMode.dark
           : ThemeMode.light,
+      themeAnimationDuration: const Duration(milliseconds: 300),
+      themeAnimationCurve: Curves.easeInOut,
       home: const FBITransferPage(),
     );
   }
