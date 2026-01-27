@@ -17,14 +17,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+        color: isDark ? Colors.grey.shade900 : Colors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
@@ -43,11 +48,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: InkWell(
                     onTap: () => Navigator.of(context).pop(),
                     borderRadius: BorderRadius.circular(8),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
                       child: Icon(
                         Icons.arrow_back,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                         size: 24,
                       ),
                     ),
@@ -58,7 +63,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               TDText(
                 title,
                 font: TDTheme.of(context).fontTitleLarge,
-                textColor: Colors.black,
+                textColor: isDark ? Colors.white : Colors.black,
                 fontWeight: FontWeight.w600,
               ),
               const Spacer(),

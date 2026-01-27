@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/theme_manager.dart' as theme_manager;
 
 class CenteredButton extends StatelessWidget {
   final String text;
@@ -24,19 +25,29 @@ class CenteredButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final themeManager = theme_manager.ThemeManager();
+    final themeColor = themeManager.themeColor;
+
     final bgColor =
         backgroundColor ??
         (disabled
-            ? Colors.grey.shade300
-            : (isPrimary ? const Color(0xFF0052D9) : Colors.white));
+            ? (isDark ? Colors.grey.shade800 : Colors.grey.shade300)
+            : (isPrimary
+                  ? themeColor
+                  : (isDark ? Colors.grey.shade800 : Colors.white)));
     final textColor = disabled
-        ? Colors.grey.shade600
+        ? (isDark ? Colors.grey.shade600 : Colors.grey.shade600)
         : (backgroundColor != null
               ? Colors.white
-              : (isPrimary ? Colors.white : Colors.black87));
+              : (isPrimary
+                    ? Colors.white
+                    : (isDark ? Colors.white : Colors.black87)));
     final borderColor =
         backgroundColor ??
-        (isPrimary ? const Color(0xFF0052D9) : Colors.grey.shade300);
+        (isPrimary
+            ? themeColor
+            : (isDark ? Colors.grey.shade700 : Colors.grey.shade300));
 
     return SizedBox(
       width: isBlock ? double.infinity : null,

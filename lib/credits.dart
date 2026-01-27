@@ -14,17 +14,22 @@ class CreditsPage extends StatelessWidget {
     }
   }
 
-  Widget _buildIconFeature(BuildContext context, IconData icon, String label) {
+  Widget _buildIconFeature(
+    BuildContext context,
+    IconData icon,
+    String label,
+    bool isDark,
+  ) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? Colors.grey.shade800 : Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -36,7 +41,7 @@ class CreditsPage extends StatelessWidget {
         TDText(
           label,
           font: TDTheme.of(context).fontBodySmall,
-          textColor: Colors.grey.shade700,
+          textColor: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
           textAlign: TextAlign.center,
           fontWeight: FontWeight.w600,
         ),
@@ -46,6 +51,7 @@ class CreditsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: const CustomAppBar(title: 'Credits'),
       body: SingleChildScrollView(
@@ -86,7 +92,7 @@ class CreditsPage extends StatelessWidget {
                 'Shadowfly',
                 font: TDTheme.of(context).fontTitleLarge,
                 fontWeight: FontWeight.w800,
-                textColor: Colors.black,
+                textColor: isDark ? Colors.white : Colors.black,
               ),
               const SizedBox(height: 8),
 
@@ -94,7 +100,7 @@ class CreditsPage extends StatelessWidget {
               TDText(
                 'Break Through Censorship. Protect Your Privacy.',
                 font: TDTheme.of(context).fontBodyLarge,
-                textColor: Colors.grey.shade700,
+                textColor: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
                 textAlign: TextAlign.center,
                 fontWeight: FontWeight.w500,
               ),
@@ -105,20 +111,33 @@ class CreditsPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.blue.shade50, Colors.purple.shade50],
-                  ),
+                  gradient: isDark
+                      ? LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.blue.shade900.withValues(alpha: 0.3),
+                            Colors.purple.shade900.withValues(alpha: 0.3),
+                          ],
+                        )
+                      : LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.blue.shade50, Colors.purple.shade50],
+                        ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.blue.shade200),
+                  border: Border.all(
+                    color: isDark ? Colors.blue.shade800 : Colors.blue.shade200,
+                  ),
                 ),
                 child: Column(
                   children: [
                     TDText(
                       'A VPN built to bypass the Great Firewall and protect your digital freedom—whether you\'re in China or anywhere else.',
                       font: TDTheme.of(context).fontBodyLarge,
-                      textColor: Colors.grey.shade800,
+                      textColor: isDark
+                          ? Colors.grey.shade300
+                          : Colors.grey.shade800,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.w500,
                     ),
@@ -130,16 +149,19 @@ class CreditsPage extends StatelessWidget {
                           context,
                           Icons.shield_outlined,
                           'REALITY\nProtocol',
+                          isDark,
                         ),
                         _buildIconFeature(
                           context,
                           Icons.public_off,
                           'Anti-\nCensorship',
+                          isDark,
                         ),
                         _buildIconFeature(
                           context,
                           Icons.lock_outline,
                           'Privacy\nFirst',
+                          isDark,
                         ),
                       ],
                     ),
@@ -153,9 +175,15 @@ class CreditsPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
+                  color: isDark
+                      ? Colors.green.shade900.withValues(alpha: 0.3)
+                      : Colors.green.shade50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.green.shade200),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.green.shade800
+                        : Colors.green.shade200,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -169,14 +197,16 @@ class CreditsPage extends StatelessWidget {
                       'Why Privacy Tech Matters',
                       font: TDTheme.of(context).fontTitleMedium,
                       fontWeight: FontWeight.w600,
-                      textColor: Colors.black,
+                      textColor: isDark ? Colors.white : Colors.black,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     TDText(
                       'Our REALITY protocol hides your destination from ISPs and network monitors by masquerading as normal web traffic. What works against censorship also protects you from surveillance—everywhere.',
                       font: TDTheme.of(context).fontBodyMedium,
-                      textColor: Colors.grey.shade700,
+                      textColor: isDark
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade700,
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -189,9 +219,15 @@ class CreditsPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
+                  color: isDark
+                      ? Colors.purple.shade900.withValues(alpha: 0.3)
+                      : Colors.purple.shade50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.purple.shade200),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.purple.shade800
+                        : Colors.purple.shade200,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -202,13 +238,15 @@ class CreditsPage extends StatelessWidget {
                       'Made with 3DS Love',
                       font: TDTheme.of(context).fontTitleMedium,
                       fontWeight: FontWeight.w600,
-                      textColor: Colors.black,
+                      textColor: isDark ? Colors.white : Colors.black,
                     ),
                     const SizedBox(height: 8),
                     TDText(
                       'The Shadowfly team built this app for the 3DS community. We believe in open access to content, without restrictions.',
                       font: TDTheme.of(context).fontBodyMedium,
-                      textColor: Colors.grey.shade700,
+                      textColor: isDark
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade700,
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -228,7 +266,7 @@ class CreditsPage extends StatelessWidget {
               TDText(
                 'shadowfly.net',
                 font: TDTheme.of(context).fontBodySmall,
-                textColor: Colors.grey.shade500,
+                textColor: isDark ? Colors.grey.shade600 : Colors.grey.shade500,
               ),
               const SizedBox(height: 40),
             ],

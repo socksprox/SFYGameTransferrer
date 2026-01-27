@@ -21,6 +21,7 @@ class DebugScreen extends StatefulWidget {
 class _DebugScreenState extends State<DebugScreen> {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isServerActive = widget.fbiService.httpServer != null;
     final serverUrl = isServerActive
         ? 'http://${widget.fbiService.localIpAddress}:${widget.fbiService.httpServer!.port}'
@@ -73,19 +74,19 @@ class _DebugScreenState extends State<DebugScreen> {
                   context,
                   'Total Files',
                   '${widget.fbiService.files.length}',
-                  Colors.black,
+                  isDark ? Colors.white : Colors.black,
                 ),
                 _buildInfoRow(
                   context,
                   'Local Files',
                   '${widget.fbiService.files.where((f) => !f.isExternalUrl).length}',
-                  Colors.black,
+                  isDark ? Colors.white : Colors.black,
                 ),
                 _buildInfoRow(
                   context,
                   'External URLs',
                   '${widget.fbiService.files.where((f) => f.isExternalUrl).length}',
-                  Colors.black,
+                  isDark ? Colors.white : Colors.black,
                 ),
                 const SizedBox(height: 12),
                 if (widget.fbiService.files.isNotEmpty) ...[
@@ -93,6 +94,7 @@ class _DebugScreenState extends State<DebugScreen> {
                     'File List:',
                     font: TDTheme.of(context).fontBodyMedium,
                     fontWeight: FontWeight.w600,
+                    textColor: isDark ? Colors.white : Colors.black,
                   ),
                   const SizedBox(height: 8),
                   ...widget.fbiService.files.map((file) {
@@ -100,9 +102,15 @@ class _DebugScreenState extends State<DebugScreen> {
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade200),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade200,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,6 +134,9 @@ class _DebugScreenState extends State<DebugScreen> {
                                   fontWeight: FontWeight.w600,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
+                                  textColor: isDark
+                                      ? Colors.white
+                                      : Colors.black,
                                 ),
                               ),
                             ],
@@ -136,14 +147,18 @@ class _DebugScreenState extends State<DebugScreen> {
                                 ? 'External URL'
                                 : 'Size: ${_formatBytes(file.size)}',
                             font: TDTheme.of(context).fontBodySmall,
-                            textColor: Colors.grey.shade600,
+                            textColor: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade600,
                           ),
                           if (!file.isExternalUrl) ...[
                             const SizedBox(height: 4),
                             TDText(
                               'Path: ${file.clientPath}',
                               font: TDTheme.of(context).fontBodySmall,
-                              textColor: Colors.grey.shade500,
+                              textColor: isDark
+                                  ? Colors.grey.shade500
+                                  : Colors.grey.shade500,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -166,7 +181,7 @@ class _DebugScreenState extends State<DebugScreen> {
                   context,
                   'Total Consoles',
                   '${widget.consoleManager.consoles.length}',
-                  Colors.black,
+                  isDark ? Colors.white : Colors.black,
                 ),
                 const SizedBox(height: 12),
                 if (widget.consoleManager.consoles.isNotEmpty) ...[
@@ -174,6 +189,7 @@ class _DebugScreenState extends State<DebugScreen> {
                     'Console List:',
                     font: TDTheme.of(context).fontBodyMedium,
                     fontWeight: FontWeight.w600,
+                    textColor: isDark ? Colors.white : Colors.black,
                   ),
                   const SizedBox(height: 8),
                   ...widget.consoleManager.consoles.map((console) {
@@ -181,9 +197,15 @@ class _DebugScreenState extends State<DebugScreen> {
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
+                        color: isDark
+                            ? Colors.blue.shade900.withValues(alpha: 0.3)
+                            : Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue.shade200),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.blue.shade800
+                              : Colors.blue.shade200,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -201,11 +223,16 @@ class _DebugScreenState extends State<DebugScreen> {
                                   console.ipAddress,
                                   font: TDTheme.of(context).fontBodyMedium,
                                   fontWeight: FontWeight.w600,
+                                  textColor: isDark
+                                      ? Colors.white
+                                      : Colors.black,
                                 ),
                                 TDText(
                                   'Port: ${console.port}',
                                   font: TDTheme.of(context).fontBodySmall,
-                                  textColor: Colors.grey.shade600,
+                                  textColor: isDark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600,
                                 ),
                               ],
                             ),
@@ -228,7 +255,7 @@ class _DebugScreenState extends State<DebugScreen> {
                   context,
                   'Active Downloads',
                   '${_getActiveDownloadsCount()}',
-                  Colors.black,
+                  isDark ? Colors.white : Colors.black,
                 ),
                 const SizedBox(height: 12),
                 if (_hasDownloadProgress()) ...[
@@ -236,6 +263,7 @@ class _DebugScreenState extends State<DebugScreen> {
                     'Recent Downloads:',
                     font: TDTheme.of(context).fontBodyMedium,
                     fontWeight: FontWeight.w600,
+                    textColor: isDark ? Colors.white : Colors.black,
                   ),
                   const SizedBox(height: 8),
                   ..._buildDownloadProgressWidgets(context),
@@ -255,15 +283,18 @@ class _DebugScreenState extends State<DebugScreen> {
     required Color iconColor,
     required List<Widget> children,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Colors.grey.shade800 : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade200,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
@@ -287,6 +318,7 @@ class _DebugScreenState extends State<DebugScreen> {
                 title,
                 font: TDTheme.of(context).fontTitleMedium,
                 fontWeight: FontWeight.w600,
+                textColor: isDark ? Colors.white : Colors.black,
               ),
             ],
           ),
@@ -303,6 +335,7 @@ class _DebugScreenState extends State<DebugScreen> {
     String value,
     Color valueColor,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -311,7 +344,7 @@ class _DebugScreenState extends State<DebugScreen> {
           TDText(
             label,
             font: TDTheme.of(context).fontBodyMedium,
-            textColor: Colors.grey.shade700,
+            textColor: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
           ),
           TDText(
             value,
@@ -342,6 +375,7 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   List<Widget> _buildDownloadProgressWidgets(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final widgets = <Widget>[];
     for (final file in widget.fbiService.files) {
       final progressList = widget.fbiService.getDownloadProgress(file.fileName);
@@ -352,13 +386,19 @@ class _DebugScreenState extends State<DebugScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: progress.isComplete
-                  ? Colors.green.shade50
-                  : Colors.purple.shade50,
+                  ? (isDark
+                        ? Colors.green.shade900.withValues(alpha: 0.3)
+                        : Colors.green.shade50)
+                  : (isDark
+                        ? Colors.purple.shade900.withValues(alpha: 0.3)
+                        : Colors.purple.shade50),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: progress.isComplete
-                    ? Colors.green.shade200
-                    : Colors.purple.shade200,
+                    ? (isDark ? Colors.green.shade800 : Colors.green.shade200)
+                    : (isDark
+                          ? Colors.purple.shade800
+                          : Colors.purple.shade200),
               ),
             ),
             child: Column(
@@ -383,6 +423,7 @@ class _DebugScreenState extends State<DebugScreen> {
                         fontWeight: FontWeight.w600,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        textColor: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                   ],
@@ -391,19 +432,25 @@ class _DebugScreenState extends State<DebugScreen> {
                 TDText(
                   'Client: ${progress.clientIp}',
                   font: TDTheme.of(context).fontBodySmall,
-                  textColor: Colors.grey.shade600,
+                  textColor: isDark
+                      ? Colors.grey.shade400
+                      : Colors.grey.shade600,
                 ),
                 const SizedBox(height: 4),
                 TDText(
                   'Progress: ${(progress.progress * 100).toStringAsFixed(1)}% (${_formatBytes(progress.downloadedBytes)} / ${_formatBytes(progress.totalBytes)})',
                   font: TDTheme.of(context).fontBodySmall,
-                  textColor: Colors.grey.shade600,
+                  textColor: isDark
+                      ? Colors.grey.shade400
+                      : Colors.grey.shade600,
                 ),
                 if (!progress.isComplete) ...[
                   const SizedBox(height: 8),
                   LinearProgressIndicator(
                     value: progress.progress,
-                    backgroundColor: Colors.grey.shade200,
+                    backgroundColor: isDark
+                        ? Colors.grey.shade700
+                        : Colors.grey.shade200,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       Colors.purple.shade600,
                     ),

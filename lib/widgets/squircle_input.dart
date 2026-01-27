@@ -22,15 +22,21 @@ class SquircleInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : Colors.grey.shade100,
+        color: enabled
+            ? (isDark ? Colors.grey.shade800 : Colors.white)
+            : (isDark ? Colors.grey.shade900 : Colors.grey.shade100),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300, width: 1),
+        border: Border.all(
+          color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.02),
             offset: const Offset(0, 1),
             blurRadius: 2,
           ),
@@ -43,10 +49,16 @@ class SquircleInput extends StatelessWidget {
         maxLines: maxLines,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
-        style: const TextStyle(fontSize: 14, color: Colors.black87),
+        style: TextStyle(
+          fontSize: 14,
+          color: isDark ? Colors.white : Colors.black87,
+        ),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+          hintStyle: TextStyle(
+            fontSize: 14,
+            color: isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+          ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

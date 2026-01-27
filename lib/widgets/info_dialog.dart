@@ -26,6 +26,7 @@ class InfoDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
@@ -50,6 +51,7 @@ class InfoDialog extends StatelessWidget {
                     title,
                     font: TDTheme.of(context).fontTitleLarge,
                     fontWeight: FontWeight.w600,
+                    textColor: isDark ? Colors.white : Colors.black,
                   ),
                 ),
               ],
@@ -58,7 +60,7 @@ class InfoDialog extends StatelessWidget {
             TDText(
               message,
               font: TDTheme.of(context).fontBodyMedium,
-              textColor: Colors.grey.shade700,
+              textColor: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
             ),
             const SizedBox(height: 24),
             if (cancelText != null)

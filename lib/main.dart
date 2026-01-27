@@ -4,29 +4,70 @@ import 'package:file_picker/file_picker.dart';
 import 'services/fbi_service.dart';
 import 'services/console_manager.dart';
 import 'services/notification_service.dart';
+import 'services/theme_manager.dart' as theme_manager;
 import 'widgets/squircle_input.dart';
 import 'widgets/centered_button.dart';
 import 'widgets/download_progress_dialog.dart';
 import 'widgets/custom_app_bar.dart';
 import 'widgets/info_dialog.dart';
+import 'widgets/settings_screen.dart';
 import 'credits.dart';
 import 'debug_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await theme_manager.ThemeManager().init();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    theme_manager.ThemeManager().addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    theme_manager.ThemeManager().removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final themeManager = theme_manager.ThemeManager();
+    final brightness = themeManager.getBrightness(context);
+
     return MaterialApp(
       title: 'SFYGameTransferrer',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: brightness == Brightness.dark
+          ? ThemeMode.dark
+          : ThemeMode.light,
       home: const FBITransferPage(),
     );
   }
@@ -254,6 +295,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: CustomAppBar(
         title: 'SFY Game Transferrer',
@@ -269,9 +311,9 @@ class _FBITransferPageState extends State<FBITransferPage> {
               ),
             );
           },
-          child: const Icon(
+          child: Icon(
             Icons.videogame_asset,
-            color: Colors.black,
+            color: isDark ? Colors.white : Colors.black,
             size: 24,
           ),
         ),
@@ -299,7 +341,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
       ),
       body: IndexedStack(
         index: _currentTabIndex,
-        children: [_buildConsolesTab(), _buildFilesTab()],
+        children: [
+          _buildConsolesTab(),
+          _buildFilesTab(),
+          const SettingsScreen(),
+        ],
       ),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
@@ -314,7 +360,9 @@ class _FBITransferPageState extends State<FBITransferPage> {
               _currentTabIndex = index;
             });
           },
-          selectedItemColor: Colors.black,
+          selectedItemColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
           unselectedItemColor: Colors.grey,
           selectedLabelStyle: const TextStyle(
             fontWeight: FontWeight.w600,
@@ -334,6 +382,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
               activeIcon: Icon(Icons.folder),
               label: 'Files',
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
           ],
         ),
       ),
@@ -341,6 +394,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
   }
 
   Widget _buildConsolesTab() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -350,6 +404,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
             '3DS Consoles (${_consoleManager.consoles.length})',
             font: TDTheme.of(context).fontTitleLarge,
             fontWeight: FontWeight.w600,
+            textColor: isDark ? Colors.white : Colors.black,
           ),
           const SizedBox(height: 8),
           Row(
@@ -409,9 +464,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
           Container(
             height: 120,
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(
+                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+              ),
             ),
             child: _consoleManager.consoles.isEmpty
                 ? Center(
@@ -421,18 +478,24 @@ class _FBITransferPageState extends State<FBITransferPage> {
                         Icon(
                           Icons.videogame_asset_outlined,
                           size: 32,
-                          color: Colors.grey.shade300,
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade300,
                         ),
                         const SizedBox(height: 8),
                         TDText(
                           'No consoles added',
-                          textColor: Colors.grey,
+                          textColor: isDark
+                              ? Colors.grey.shade400
+                              : Colors.grey,
                           font: TDTheme.of(context).fontBodyMedium,
                         ),
                         const SizedBox(height: 4),
                         TDText(
                           'Use Auto-Detect or add manually',
-                          textColor: Colors.grey.shade400,
+                          textColor: isDark
+                              ? Colors.grey.shade600
+                              : Colors.grey.shade400,
                           font: TDTheme.of(context).fontBodySmall,
                         ),
                       ],
@@ -447,12 +510,18 @@ class _FBITransferPageState extends State<FBITransferPage> {
                       final console = _consoleManager.consoles[index];
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? Colors.grey.shade800 : Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey.shade200),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade200,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.2 : 0.03,
+                              ),
                               offset: const Offset(0, 1),
                               blurRadius: 3,
                             ),
@@ -468,7 +537,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
+                                  color: isDark
+                                      ? Colors.blue.shade900.withValues(
+                                          alpha: 0.3,
+                                        )
+                                      : Colors.blue.shade50,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
@@ -486,12 +559,17 @@ class _FBITransferPageState extends State<FBITransferPage> {
                                       console.ipAddress,
                                       font: TDTheme.of(context).fontBodyMedium,
                                       fontWeight: FontWeight.w600,
+                                      textColor: isDark
+                                          ? Colors.white
+                                          : Colors.black,
                                     ),
                                     const SizedBox(height: 2),
                                     TDText(
                                       'Port: ${console.port}',
                                       font: TDTheme.of(context).fontBodySmall,
-                                      textColor: Colors.grey.shade600,
+                                      textColor: isDark
+                                          ? Colors.grey.shade400
+                                          : Colors.grey.shade600,
                                     ),
                                   ],
                                 ),
@@ -528,6 +606,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
   }
 
   Widget _buildFilesTab() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -537,6 +616,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
             'Files (${_fbiService.files.length})',
             font: TDTheme.of(context).fontTitleLarge,
             fontWeight: FontWeight.w600,
+            textColor: isDark ? Colors.white : Colors.black,
           ),
           const SizedBox(height: 8),
           Row(
@@ -588,9 +668,11 @@ class _FBITransferPageState extends State<FBITransferPage> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(
+                  color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
+                ),
               ),
               child: _fbiService.files.isEmpty
                   ? Center(
@@ -600,18 +682,24 @@ class _FBITransferPageState extends State<FBITransferPage> {
                           Icon(
                             Icons.folder_outlined,
                             size: 32,
-                            color: Colors.grey.shade300,
+                            color: isDark
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300,
                           ),
                           const SizedBox(height: 8),
                           TDText(
                             'No files added',
-                            textColor: Colors.grey,
+                            textColor: isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey,
                             font: TDTheme.of(context).fontBodyMedium,
                           ),
                           const SizedBox(height: 4),
                           TDText(
                             'Add local files or external URLs',
-                            textColor: Colors.grey.shade400,
+                            textColor: isDark
+                                ? Colors.grey.shade600
+                                : Colors.grey.shade400,
                             font: TDTheme.of(context).fontBodySmall,
                           ),
                         ],
@@ -627,12 +715,18 @@ class _FBITransferPageState extends State<FBITransferPage> {
                         final isUrl = file.isExternalUrl;
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDark ? Colors.grey.shade800 : Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.grey.shade200),
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.grey.shade700
+                                  : Colors.grey.shade200,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
+                                color: Colors.black.withValues(
+                                  alpha: isDark ? 0.2 : 0.03,
+                                ),
                                 offset: const Offset(0, 1),
                                 blurRadius: 3,
                               ),
@@ -649,8 +743,15 @@ class _FBITransferPageState extends State<FBITransferPage> {
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: isUrl
-                                        ? Colors.blue.shade50
-                                        : Colors.green.shade50,
+                                        ? (isDark
+                                              ? Colors.blue.shade900.withValues(
+                                                  alpha: 0.3,
+                                                )
+                                              : Colors.blue.shade50)
+                                        : (isDark
+                                              ? Colors.green.shade900
+                                                    .withValues(alpha: 0.3)
+                                              : Colors.green.shade50),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(
@@ -677,6 +778,9 @@ class _FBITransferPageState extends State<FBITransferPage> {
                                         fontWeight: FontWeight.w600,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
+                                        textColor: isDark
+                                            ? Colors.white
+                                            : Colors.black,
                                       ),
                                       const SizedBox(height: 2),
                                       TDText(
@@ -684,7 +788,9 @@ class _FBITransferPageState extends State<FBITransferPage> {
                                             ? 'External URL'
                                             : _formatBytes(file.size),
                                         font: TDTheme.of(context).fontBodySmall,
-                                        textColor: Colors.grey.shade600,
+                                        textColor: isDark
+                                            ? Colors.grey.shade400
+                                            : Colors.grey.shade600,
                                       ),
                                     ],
                                   ),
@@ -765,6 +871,7 @@ class _FBITransferPageState extends State<FBITransferPage> {
             'Transfer Log',
             font: TDTheme.of(context).fontTitleMedium,
             fontWeight: FontWeight.w600,
+            textColor: isDark ? Colors.white : Colors.black,
           ),
           const SizedBox(height: 8),
           Expanded(
@@ -772,13 +879,18 @@ class _FBITransferPageState extends State<FBITransferPage> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(
+                  color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                ),
               ),
               child: _logs.isEmpty
-                  ? const Center(
-                      child: TDText('No logs yet', textColor: Colors.grey),
+                  ? Center(
+                      child: TDText(
+                        'No logs yet',
+                        textColor: isDark ? Colors.grey.shade500 : Colors.grey,
+                      ),
                     )
                   : ListView.builder(
                       itemCount: _logs.length,
@@ -787,7 +899,12 @@ class _FBITransferPageState extends State<FBITransferPage> {
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           child: Text(
                             _logs[index],
-                            style: const TextStyle(fontSize: 12),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark
+                                  ? Colors.grey.shade300
+                                  : Colors.black87,
+                            ),
                           ),
                         );
                       },
