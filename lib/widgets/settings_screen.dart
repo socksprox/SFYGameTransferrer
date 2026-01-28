@@ -194,17 +194,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               textColor: isDark ? Colors.white : Colors.black,
             ),
             const SizedBox(height: 16),
-            ThemeTabSelector(
-              tabs: const [
-                ThemeTabItem(
+            TDesignTabSelector(
+              tabs: [
+                TDesignTabItem(
                   text: 'Light',
                   icon: Icon(Icons.light_mode, size: 16),
                 ),
-                ThemeTabItem(
+                TDesignTabItem(
                   text: 'Dark',
                   icon: Icon(Icons.dark_mode, size: 16),
                 ),
-                ThemeTabItem(
+                TDesignTabItem(
                   text: 'System',
                   icon: Icon(Icons.brightness_auto, size: 16),
                 ),

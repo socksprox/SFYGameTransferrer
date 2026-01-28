@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:tdesign_flutter/tdesign_flutter.dart';
 import '../services/theme_manager.dart' as theme_manager;
 
-/// A theme-aware tab selector component with theme color and same radius as CenteredButton
+/// A reusable TDesign-styled tab selector component with square card design
 /// Supports 2-5 tabs with icons and text labels
-class ThemeTabSelector extends StatefulWidget {
-  final List<ThemeTabItem> tabs;
+class TDesignTabSelector extends StatefulWidget {
+  final List<TDesignTabItem> tabs;
   final int initialIndex;
   final Function(int) onTabChanged;
   final double? height;
   final double? width;
 
-  const ThemeTabSelector({
+  const TDesignTabSelector({
     super.key,
     required this.tabs,
     required this.onTabChanged,
@@ -19,14 +20,14 @@ class ThemeTabSelector extends StatefulWidget {
     this.width,
   }) : assert(
          tabs.length >= 2 && tabs.length <= 5,
-         'ThemeTabSelector requires 2-5 tabs',
+         'TDesignTabSelector requires 2-5 tabs',
        );
 
   @override
-  State<ThemeTabSelector> createState() => _ThemeTabSelectorState();
+  State<TDesignTabSelector> createState() => _TDesignTabSelectorState();
 }
 
-class _ThemeTabSelectorState extends State<ThemeTabSelector>
+class _TDesignTabSelectorState extends State<TDesignTabSelector>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -41,7 +42,7 @@ class _ThemeTabSelectorState extends State<ThemeTabSelector>
   }
 
   @override
-  void didUpdateWidget(ThemeTabSelector oldWidget) {
+  void didUpdateWidget(TDesignTabSelector oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialIndex != widget.initialIndex) {
       _tabController.animateTo(widget.initialIndex);
@@ -77,7 +78,7 @@ class _ThemeTabSelectorState extends State<ThemeTabSelector>
               height: widget.height,
               child: Stack(
                 children: [
-                  // Animated sliding indicator with theme color and same radius as CenteredButton
+                  // Animated sliding indicator
                   AnimatedPositioned(
                     duration: const Duration(milliseconds: 150),
                     curve: Curves.easeOut,
@@ -88,18 +89,7 @@ class _ThemeTabSelectorState extends State<ThemeTabSelector>
                     child: Container(
                       decoration: BoxDecoration(
                         color: themeColor,
-                        borderRadius: BorderRadius.circular(
-                          8,
-                        ), // Same radius as CenteredButton
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: isDarkMode ? 0.4 : 0.15,
-                            ),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ),
@@ -171,9 +161,9 @@ class _ThemeTabSelectorState extends State<ThemeTabSelector>
 }
 
 /// Data class for tab items
-class ThemeTabItem {
+class TDesignTabItem {
   final String text;
   final Widget? icon;
 
-  const ThemeTabItem({required this.text, this.icon});
+  const TDesignTabItem({required this.text, this.icon});
 }
