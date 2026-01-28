@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tdesign_flutter/tdesign_flutter.dart';
 import '../services/theme_manager.dart' as theme_manager;
 
 /// A reusable TDesign-styled tab selector component with square card design
